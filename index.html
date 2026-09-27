@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Digital Academy — Plateforme d'Apprentissage & Tuteur IA Illimité</title>
+  
+  <!-- Polices -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --secondary: #0f172a;
+      --accent: #10b981;
+      --bg-main: #f8fafc;
+      --surface: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --sidebar-bg: #0f172a;
+      --sidebar-hover: #1e293b;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      background: var(--bg-main);
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      height: 100%;
+      height: 100dvh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      color: white;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 50;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 40;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--primary);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4);
+      flex-shrink: 0;
+    }
+
+    .logo-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .logo-text h1 span { color: #38bdf8; }
+    .logo-text p { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .menu-item:hover {
+      background: var(--sidebar-hover);
+      color: white;
+    }
+
+    .menu-item.active {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+    }
+
+    .menu-badge {
+      margin-left: auto;
+      background: rgba(255,255,255,0.15);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .sidebar-bottom {
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .progress-box {
+      background: var(--sidebar-hover);
+      padding: 14px;
+      border-radius: var(--radius-md);
+    }
+
+    .progress-box p {
+      font-size: 12px;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ================= MAIN CONTAINER ================= */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-width: 0;
+      position: relative;
+    }
+
+    /* ================= TOPBAR ================= */
+    .topbar {
+      height: 68px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      max-width: 600px;
+    }
+
+    .btn-menu-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      color: var(--text-dark);
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .btn-menu-toggle:hover {
+      background: var(--bg-main);
+    }
+
+    .search-bar {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-bar input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-left: 12px;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      border: 2px solid white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .user-profile-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ================= CONTENT & PANELS ================= */
+    .content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      height: calc(100% - 68px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .view-panel {
+      display: none;
+      height: 100%;
+      overflow-y: auto;
+      padding: 24px;
+      background: var(--bg-main);
+    }
+
+    .view-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #chatTab.view-panel {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* ================= CHAT CONTAINER ================= */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: var(--surface);
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      flex-shrink: 0;
+    }
+
+    .chat-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-title h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .chat-title p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .btn-reset {
+      background: #fee2e2;
+      color: #ef4444;
+      border: none;
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-reset:hover {
+      background: #fca5a5;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--bg-main);
+      scroll-behavior: smooth;
+    }
+
+    .message-row {
+      display: flex;
+      gap: 12px;
+      max-width: 85%;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .message-row.bot {
+      align-self: flex-start;
+    }
+
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    .message-row.bot .msg-avatar {
+      background: #e0f2fe;
+      color: var(--primary);
+    }
+
+    .message-row.user .msg-avatar {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .bubble {
+      padding: 13px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.55;
+      box-shadow: var(--shadow-sm);
+      word-break: break-word;
+    }
+
+    .message-row.bot .bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top-left-radius: 4px;
+      color: var(--text-dark);
+    }
+
+    .message-row.user .bubble {
+      background: var(--primary);
+      color: white;
+      border-top-right-radius: 4px;
+    }
+
+    .bubble pre {
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      margin: 8px 0;
+      overflow-x: auto;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .bubble code {
+      background: rgba(2, 132, 199, 0.1);
+      color: var(--primary);
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: monospace;
+    }
+
+    .message-row.user .bubble code {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .bubble ul, .bubble ol {
+      margin: 8px 0 8px 18px;
+    }
+
+    .bubble li {
+      margin-bottom: 4px;
+    }
+
+    .time-stamp {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: block;
+    }
+
+    .message-row.user .time-stamp {
+      text-align: right;
+    }
+
+    /* Zone de suggestions rapides mobile/desktop */
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+    }
+
+    .quick-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip-btn {
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .chip-btn:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* INPUT AREA */
+    .input-area {
+      padding: 12px 16px calc(12px + var(--safe-bottom));
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .input-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 4px 6px 4px 14px;
+      transition: all 0.2s;
+    }
+
+    .input-box:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+      background: white;
+    }
+
+    .input-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 14px;
+      color: var(--text-dark);
+      padding: 8px 0;
+      min-width: 0;
+    }
+
+    .btn-send {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.1s;
+      flex-shrink: 0;
+    }
+
+    .btn-send:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-send:active {
+      transform: scale(0.95);
+    }
+
+    /* ================= PANNEAU DROIT (Suggestions) ================= */
+    .right-panel {
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      padding: 20px 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel-card {
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .panel-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .suggestion-item {
+      padding: 10px 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--text-dark);
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .suggestion-item:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateX(3px);
+    }
+
+    .domain-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 4px 4px 4px 0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .domain-tag:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* ================= CATALOGUE & CARTES ================= */
+    .section-header {
+      margin-bottom: 24px;
+    }
+
+    .section-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .section-header p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .course-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .course-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+
+    .card-badge {
+      align-self: flex-start;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .course-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .course-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .action-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+
+    .action-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    /* ================= BARRE DE NAVIGATION INFÉRIEURE (MOBILE) ================= */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(58px + var(--safe-bottom));
+      padding-bottom: var(--safe-bottom);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 30;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      transition: color 0.2s;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--primary);
+    }
+
+    .bottom-nav-item span:first-child {
+      font-size: 18px;
+    }
+
+    /* ================= RESPONSIVE DESIGN ================= */
+
+    /* TABLETTES (Largeur <= 1024px) */
+    @media (max-width: 1024px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+      .right-panel {
+        display: none;
+      }
+      .sidebar {
+        width: 250px;
+      }
+    }
+
+    /* SMARTPHONES ET TABLETTES COMPACTES (Largeur <= 768px) */
+    @media (max-width: 768px) {
+      .btn-menu-toggle {
+        display: flex;
+      }
+
+      .user-profile-text {
+        display: none;
+      }
+
+      .topbar {
+        padding: 0 12px;
+        height: 60px;
+      }
+
+      .content {
+        height: calc(100% - 60px - 58px - var(--safe-bottom));
+      }
+
+      .bottom-nav {
+        display: flex;
+      }
+
+      /* Sidebar devient un tiroir coulissant */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 280px;
+        transform: translateX(-100%);
+        box-shadow: 0 0 25px rgba(0,0,0,0.5);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+        opacity: 1;
+      }
+
+      .view-panel {
+        padding: 16px;
+      }
+
+      .messages {
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .message-row {
+        max-width: 92%;
+      }
+
+      .bubble {
+        padding: 11px 13px;
+        font-size: 13.5px;
+      }
+
+      .chat-title h2 {
+        font-size: 14px;
+      }
+
+      .chat-title p {
+        font-size: 11px;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* PETITS SMARTPHONES (Largeur <= 420px) */
+    @media (max-width: 420px) {
+      .message-row {
+        max-width: 96%;
+      }
+      .chat-header {
+        padding: 12px 14px;
+      }
+      .btn-reset {
+        font-size: 11px;
+        padding: 6px 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <!-- OVERLAY FLOU POUR LE MENU MOBILE -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+  <!-- SIDEBAR GAUCHE -->
+  <aside class="sidebar" id="sidebar">
+    <div>
+      <div class="logo">
+        <div class="logo-icon">DA</div>
+        <div class="logo-text">
+          <h1>Digital <span>Academy</span></h1>
+          <p>Centre de Formation & Tuteur IA</p>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <div class="menu-item active" onclick="switchTab('chatTab', this)">
+          <span>💬</span>
+          <span>Tuteur Conversationnel</span>
+        </div>
+        <div class="menu-item" onclick="switchTab('catalogTab', this)">
+          <span>📚</span>
+          <span>Catalogue Formations</span>
+          <span class="menu-badge">4 Cursus</span>
+        </div>
+        <div class="menu-item" onclick="switchTab('orientationTab', this)">
+          <span>🧭</span>
+          <span>Orientation Post-Bac</span>
+        </div>
+        <div class="menu-item" onclick="switchTab('resourcesTab', this)">
+          <span>🛠️</span>
+          <span>Ressources & Guides</span>
+        </div>
+      </nav>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="progress-box">
+        <p><span>Progression Globale</span> <strong id="progressText">0%</strong></p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <!-- Bouton hamburger pour ouvrir la navigation sur mobile -->
+        <button class="btn-menu-toggle" id="menuToggleBtn" onclick="toggleSidebar(true)" aria-label="Ouvrir le menu">
+          ☰
+        </button>
+
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="globalSearch" placeholder="Posez une question illimitée ou cherchez un cours..." onkeyup="handleGlobalSearch(event)">
+        </div>
+      </div>
+
+      <div class="user-profile">
+        <div class="avatar">CP</div>
+        <div class="user-profile-text">
+          <span style="font-size: 13px; font-weight: 600;">Corneille Poma</span>
+          <span style="font-size: 11px; color: var(--text-muted);">Étudiant / Développeur</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- GRILLE DE CONTENU -->
+    <section class="content">
+
+      <!-- VUE 1 : ASSISTANT IA CONVERSATIONNEL SANS LIMITE -->
+      <div id="chatTab" class="view-panel active">
+        <div class="chat-container">
+          <div class="chat-header">
+            <div class="chat-title">
+              <div class="msg-avatar">🤖</div>
+              <div>
+                <h2>Digital Academy Tutor</h2>
+                <p>Réponses illimitées à toutes vos questions</p>
+              </div>
+            </div>
+            <button class="btn-reset" onclick="resetChat()">Nouvelle session</button>
+          </div>
+
+          <!-- MESSAGES -->
+          <div class="messages" id="chatWindow">
+            <div class="message-row bot">
+              <div class="msg-avatar">🤖</div>
+              <div>
+                <div class="bubble">
+                  <strong>Bienvenue Corneille ! 👋</strong><br><br>
+                  Je suis votre tuteur virtuel sans restriction. Vous pouvez me poser <strong>autant de questions que vous voulez</strong>, sans limite de messages ni de temps !<br><br>
+                  <strong>Voici quelques exemples pour démarrer :</strong>
+                  <ul>
+                    <li>Posez n'importe quelle question sur le <strong>code</strong> (HTML, CSS, JS, Python...).</li>
+                    <li>Demandez des stratégies de <strong>marketing digital</strong> ou de vente.</li>
+                    <li>Explorez les filières et carrières <strong>post-bac</strong>.</li>
+                    <li>Tapez <strong>"Apprendre HTML"</strong> ou <strong>"Apprendre Python"</strong> pour un cours guidé.</li>
+                  </ul>
+                </div>
+                <span class="time-stamp" id="initialTime"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RACCOURCIS / SUGGESTIONS RAPIDES -->
+          <div class="quick-chips">
+            <button class="chip-btn" onclick="triggerQuery('Comment structurer une page HTML ?')">📄 Base HTML</button>
+            <button class="chip-btn" onclick="triggerQuery('Comment fonctionne une variable en Python ?')">🐍 Python</button>
+            <button class="chip-btn" onclick="triggerQuery('Qu est ce que le Responsive Design ?')">📱 Responsive</button>
+            <button class="chip-btn" onclick="triggerQuery('Explique la formule marketing PAS')">📈 Copywriting</button>
+            <button class="chip-btn" onclick="triggerQuery('Quels débouchés après un bac scientifique ?')">🧭 Orientation</button>
+            <button class="chip-btn" onclick="triggerQuery('Qu est ce qu une API et le DOM ?')">⚡ JavaScript</button>
+          </div>
+
+          <!-- ZONE DE SAISIE -->
+          <div class="input-area">
+            <div class="input-box">
+              <input type="text" id="userInput" placeholder="Posez votre question sans restriction..." autocomplete="off">
+              <button class="btn-send" id="sendBtn" aria-label="Envoyer">➔</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VUE 2 : CATALOGUE FORMATIONS COMPLET -->
+      <div id="catalogTab" class="view-panel">
+        <div class="section-header">
+          <h2>📚 Catalogue de Formations Détaillées</h2>
+          <p>Chaque module contient des leçons pas à pas et un accompagnement illimité par l'IA.</p>
+        </div>
+        <div class="cards-grid" id="catalogGrid">
+          <div class="course-card">
+            <span class="card-badge">Développement Web</span>
+            <h4>HTML5 & CSS3 Moderne</h4>
+            <p>Structurez des pages web professionnelles, gérez les balises, la mise en page Flexbox/Grid et le design 100% responsive.</p>
+            <button class="action-btn" onclick="startCourse('HTML')">Démarrer ce cours</button>
+          </div>
+          <div class="course-card">
+            <span class="card-badge">Programmation & IA</span>
+            <h4>Python & Algorithmes</h4>
+            <p>Apprenez la syntaxe Python, les variables, les fonctions, la logique algorithmique et la création d'assistants virtuels.</p>
+            <button class="action-btn" onclick="startCourse('Python')">Démarrer ce cours</button>
+          </div>
+          <div class="course-card">
+            <span class="card-badge">Marketing Digital</span>
+            <h4>Stratégie & Copywriting</h4>
+            <p>Techniques de rédaction persuasive, formules de vente (AIDA, PAS), création d'e-books et acquisition de clients.</p>
+            <button class="action-btn" onclick="startCourse('Marketing')">Démarrer ce cours</button>
+          </div>
+          <div class="course-card">
+            <span class="card-badge">Design Graphique</span>
+            <h4>Branding & UI/UX</h4>
+            <p>Création de logos, chartes graphiques, maquettage d'applications sur Figma et design d'expériences intuitives.</p>
+            <button class="action-btn" onclick="startCourse('Design')">Démarrer ce cours</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VUE 3 : ORIENTATION POST-BAC -->
+      <div id="orientationTab" class="view-panel">
+        <div class="section-header">
+          <h2>🧭 Orientation Académique & Post-Bac</h2>
+          <p>Évaluez vos compétences pour choisir la meilleure filière universitaire ou professionnelle.</p>
+        </div>
+        <div class="panel-card" style="margin-bottom: 20px;">
+          <h3>Bilan de compétences interactif</h3>
+          <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+            Le tuteur analyse vos affinités (Génie Informatique, Design, Marketing, Gestion de projet) et vous oriente sans limite de questions.
+          </p>
+          <button class="action-btn" onclick="triggerQuery('Lancer le bilan d orientation')">Démarrer le questionnaire d'orientation</button>
+        </div>
+      </div>
+
+      <!-- VUE 4 : RESSOURCES -->
+      <div id="resourcesTab" class="view-panel">
+        <div class="section-header">
+          <h2>🛠️ Outils & Modèles Téléchargeables</h2>
+          <p>Ressources complètes pour accélérer vos projets d'études et professionnels.</p>
+        </div>
+        <div class="cards-grid">
+          <div class="course-card">
+            <span class="card-badge">PDF / Document</span>
+            <h4>Guide du Développeur Web</h4>
+            <p>Feuille de route complète et aide-mémoire des balises HTML et règles CSS fondamentales.</p>
+            <button class="action-btn" onclick="triggerQuery('Télécharger le guide HTML')">Accéder à la ressource</button>
+          </div>
+          <div class="course-card">
+            <span class="card-badge">Template</span>
+            <h4>Modèle de CV Développeur</h4>
+            <p>Structure professionnelle optimisée pour présenter vos projets web et compétences techniques.</p>
+            <button class="action-btn" onclick="triggerQuery('Obtenir le modèle de CV')">Accéder à la ressource</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANNEAU DROIT (NAVIGATION RAPIDE / DESKTOP) -->
+      <aside class="right-panel">
+        <div class="panel-card">
+          <h3>💡 Questions fréquentes</h3>
+          <div class="suggestion-item" onclick="triggerQuery('Comment structurer une page HTML ?')">
+            <span>Structure HTML</span> ➔
+          </div>
+          <div class="suggestion-item" onclick="triggerQuery('C est quoi le Responsive Design ?')">
+            <span>Responsive Web</span> ➔
+          </div>
+          <div class="suggestion-item" onclick="triggerQuery('Comment débuter avec Python ?')">
+            <span>Débuter Python</span> ➔
+          </div>
+          <div class="suggestion-item" onclick="triggerQuery('Formule de vente copywriting')">
+            <span>Vente & Copywriting</span> ➔
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h3>🎯 Domaines d'études</h3>
+          <div>
+            <span class="domain-tag" onclick="triggerQuery('Formation Développement Web')">Dev Web</span>
+            <span class="domain-tag" onclick="triggerQuery('Formation Python')">Python</span>
+            <span class="domain-tag" onclick="triggerQuery('Formation Marketing')">Marketing</span>
+            <span class="domain-tag" onclick="triggerQuery('Formation UI UX Design')">Design</span>
+            <span class="domain-tag" onclick="triggerQuery('Orientation carrière tech')">Carrière</span>
+          </div>
+        </div>
+      </aside>
+
+    </section>
+  </main>
+
+  <!-- NAVIGATION INFÉRIEURE POUR MOBILES -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-item active" onclick="switchTab('chatTab', this)">
+      <span>💬</span>
+      <span>Chat</span>
+    </div>
+    <div class="bottom-nav-item" onclick="switchTab('catalogTab', this)">
+      <span>📚</span>
+      <span>Cours</span>
+    </div>
+    <div class="bottom-nav-item" onclick="switchTab('orientationTab', this)">
+      <span>🧭</span>
+      <span>Orientation</span>
+    </div>
+    <div class="bottom-nav-item" onclick="switchTab('resourcesTab', this)">
+      <span>🛠️</span>
+      <span>Outils</span>
+    </div>
+  </nav>
+
+</div>
+
+<script>
+  /* ================= ÉTAT GLOBAL ET NAVIGATION ================= */
+  const userInput = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const chatWindow = document.getElementById("chatWindow");
+  const sidebar = document.getElementById("sidebar");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+  let userProgress = JSON.parse(localStorage.getItem('da_progress')) || { html: 0, python: 0, marketing: 0, design: 0 };
+  let currentCourseState = null;
+  let questionCount = 0; // Compteur indicatif (aucune limite imposée)
+
+  document.getElementById("initialTime").innerText = getCurrentTime();
+  updateProgressBar();
+
+  function getCurrentTime() {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /* Gestion du menu mobile */
+  function toggleSidebar(open) {
+    if (open) {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('open');
+    } else {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('open');
+    }
+  }
+
+  function switchTab(tabId, element) {
+    document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.bottom-nav-item').forEach(item => item.classList.remove('active'));
+
+    const targetPanel = document.getElementById(tabId);
+    if (targetPanel) targetPanel.classList.add('active');
+
+    // Mettre à jour l'état actif dans les menus correspondants
+    const menuIndex = ['chatTab', 'catalogTab', 'orientationTab', 'resourcesTab'].indexOf(tabId);
+    if (menuIndex !== -1) {
+      const desktopItems = document.querySelectorAll('.menu-item');
+      if (desktopItems[menuIndex]) desktopItems[menuIndex].classList.add('active');
+
+      const mobileItems = document.querySelectorAll('.bottom-nav-item');
+      if (mobileItems[menuIndex]) mobileItems[menuIndex].classList.add('active');
+    }
+
+    // Fermer le tiroir mobile si ouvert
+    toggleSidebar(false);
+  }
+
+  function updateProgressBar() {
+    const total = (userProgress.html + userProgress.python + userProgress.marketing + userProgress.design) / 4;
+    document.getElementById('progressFill').style.width = `${total}%`;
+    document.getElementById('progressText').innerText = `${Math.round(total)}%`;
+    localStorage.setItem('da_progress', JSON.stringify(userProgress));
+  }
+
+  /* ================= MOTEUR PÉDAGOGIQUE ILLIMITÉ & INTELLIGENT ================= */
+  const courseData = {
+    html: [
+      {
+        title: "Leçon 1 : Structure fondamentale d'un document HTML5",
+        content: `HTML (HyperText Markup Language) est le squelette de toute page web.<br><br>
+        Voici le code de base obligatoire pour tout fichier HTML :
+        <pre>&lt;!DOCTYPE html&gt;\n&lt;html lang="fr"&gt;\n&lt;head&gt;\n  &lt;meta charset="UTF-8"&gt;\n  &lt;title&gt;Mon Site&lt;/title&gt;\n&lt;/head&gt;\n&lt;body&gt;\n  &lt;h1&gt;Bienvenue&lt;/h1&gt;\n  &lt;p&gt;Ceci est un paragraphe.&lt;/p&gt;\n&lt;/body&gt;\n&lt;/html&gt;</pre>
+        <strong>Explication des éléments principaux :</strong>
+        <ul>
+          <li><code>&lt;!DOCTYPE html&gt;</code> : Indique au navigateur qu'il s'agit d'un document HTML5.</li>
+          <li><code>&lt;head&gt;</code> : Métadonnées (titre, encodage UTF-8, liens CSS).</li>
+          <li><code>&lt;body&gt;</code> : Tout le contenu visuel de la page.</li>
+        </ul>
+        <strong>Exercice pratique :</strong> Quelle balise sert à définir le titre visible affiché dans l'onglet du navigateur ?<br>
+        <em>(Vous pouvez répondre ou poser une autre question à tout moment !)</em>`,
+        expectedKey: "title",
+        successMsg: "Exact ! La balise <code>&lt;title&gt;</code> définit le titre affiché dans l'onglet du navigateur."
+      },
+      {
+        title: "Leçon 2 : Textes, Titres et Listes",
+        content: `Pour structurer vos textes, HTML propose plusieurs balises sémantiques :<br><br>
+        • <strong>Les titres :</strong> De <code>&lt;h1&gt;</code> (le plus important) à <code>&lt;h6&gt;</code>.<br>
+        • <strong>Les paragraphes :</strong> Définis par la balise <code>&lt;p&gt;</code>.<br>
+        • <strong>Les listes :</strong>
+          <ul>
+            <li>Non ordonnées : <code>&lt;ul&gt;</code> avec des éléments <code>&lt;li&gt;</code>.</li>
+            <li>Ordonnées (numérotées) : <code>&lt;ol&gt;</code> avec des éléments <code>&lt;li&gt;</code>.</li>
+          </ul>
+        <strong>Exercice pratique :</strong> Quelle balise utilisez-vous pour créer une liste numérotée (ordonnée) ?`,
+        expectedKey: "ol",
+        successMsg: "Très bien ! La balise <code>&lt;ol&gt;</code> (Ordered List) crée une liste numérotée."
+      },
+      {
+        title: "Leçon 3 : Les Liens et les Images",
+        content: `Le web repose sur les liens hypertextes et les médias :<br><br>
+        • <strong>Un lien :</strong> <code>&lt;a href="https://site.com"&gt;Cliquez ici&lt;/a&gt;</code><br>
+        • <strong>Une image :</strong> <code>&lt;img src="photo.jpg" alt="Description"&gt;</code> (balise auto-fermante).<br><br>
+        <strong>Exercice pratique :</strong> Quel attribut de la balise <code>&lt;a&gt;</code> permet d'indiquer l'adresse URL de destination ?`,
+        expectedKey: "href",
+        successMsg: "Bravo ! L'attribut <code>href</code> (Hypertext Reference) contient l'URL cible."
+      }
+    ],
+    python: [
+      {
+        title: "Leçon 1 : Variables et Types de données en Python",
+        content: `Python est un langage simple et très puissant.<br><br>
+        Pour créer une variable, il suffit de lui attribuer une valeur :
+        <pre>nom = "Corneille"\nage = 22\nest_etudiant = True</pre>
+        <strong>Les principaux types de données :</strong>
+        <ul>
+          <li><code>str</code> (Chaîne de caractères) : Du texte entre guillemets.</li>
+          <li><code>int</code> (Entier) : Nombres entiers sans virgule.</li>
+          <li><code>bool</code> (Booléen) : Vrai (<code>True</code>) ou Faux (<code>False</code>).</li>
+        </ul>
+        <strong>Exercice pratique :</strong> Quel type de donnée correspond à un texte entre guillemets en Python (str, int ou bool) ?`,
+        expectedKey: "str",
+        successMsg: "Parfait ! Le type <code>str</code> (string) est utilisé pour stocker des chaînes de caractères."
+      },
+      {
+        title: "Leçon 2 : Conditions et Prise de Décision",
+        content: `En Python, on utilise les instructions <code>if</code>, <code>elif</code> et <code>else</code> :
+        <pre>age = 18\nif age >= 18:\n    print("Majeur")\nelse:\n    print("Mineur")</pre>
+        <strong>Exercice pratique :</strong> Quel mot-clé Python permet d'afficher un message dans le terminal ?`,
+        expectedKey: "print",
+        successMsg: "Excellent ! La fonction <code>print()</code> affiche des données dans la console."
+      }
+    ]
+  };
+
+  /* Moteur de réponse conversationnel sans limite de questions */
+  function getAiResponse(input) {
+    questionCount++;
+    const raw = input.trim();
+    const text = raw.toLowerCase();
+
+    // Commande pour quitter ou réinitialiser un cours si l'utilisateur le souhaite
+    if (text === "quitter" || text === "stop" || text === "annuler" || text === "sortir") {
+      currentCourseState = null;
+      return "Vous êtes sorti du mode exercice. Vous pouvez me poser n'importe quelle question librement !";
+    }
+
+    // 1. Si un cours interactif est en cours
+    if (currentCourseState) {
+      const course = courseData[currentCourseState.type];
+      const lesson = course[currentCourseState.step];
+
+      // Vérifier si la réponse contient la réponse attendue à l'exercice
+      if (text.includes(lesson.expectedKey)) {
+        currentCourseState.step++;
+        userProgress[currentCourseState.type] = Math.min(100, userProgress[currentCourseState.type] + 35);
+        updateProgressBar();
+
+        if (currentCourseState.step < course.length) {
+          const nextLesson = course[currentCourseState.step];
+          return `${lesson.successMsg}<br><br>🎉 <strong>Bravo ! Passons à la leçon suivante :</strong><br><br>
+          <strong>${nextLesson.title}</strong><br>${nextLesson.content}`;
+        } else {
+          currentCourseState = null;
+          return `${lesson.successMsg}<br><br>🎓 <strong>Félicitations ! Vous avez terminé ce module d'apprentissage !</strong><br>Votre progression a été mise à jour. Que souhaitez-vous étudier maintenant ?`;
+        }
+      }
+      
+      // Si l'utilisateur pose une question générale au lieu de répondre strictement
+      // On NE LE BLOQUE PLUS : on répond à sa question et on lui rappelle qu'il peut continuer ou passer !
+      const generalAnswer = generateKnowledgeResponse(text, raw);
+      if (generalAnswer) {
+        return `${generalAnswer}<br><br><small style="color:var(--text-muted); border-top:1px dashed var(--border); display:block; padding-top:6px; margin-top:8px;">💡 <em>Pour rappel, l'exercice du cours attendait : <code>${lesson.expectedKey}</code>. Tapez "quitter" pour stopper le cours ou poursuivez avec votre réponse.</em></small>`;
+      }
+
+      return `Pas tout à fait pour l'exercice en cours.<br><br><strong>Indice :</strong> relisez la leçon ci-dessus pour trouver le mot-clé (ex: balise ou type).<br><br><em>Si vous préférez poser une autre question ou abandonner l'exercice, écrivez simplement votre question ou tapez <strong>"quitter"</strong>.</em>`;
+    }
+
+    // 2. Démarrage de cours
+    if (text.includes("apprendre html") || text.includes("cours html")) {
+      currentCourseState = { type: 'html', step: 0 };
+      const lesson = courseData.html[0];
+      return `<strong>Démarrage du Cursus HTML5 🚀</strong><br><br><strong>${lesson.title}</strong><br>${lesson.content}`;
+    }
+
+    if (text.includes("apprendre python") || text.includes("cours python")) {
+      currentCourseState = { type: 'python', step: 0 };
+      const lesson = courseData.python[0];
+      return `<strong>Démarrage du Cursus Python 🐍</strong><br><br><strong>${lesson.title}</strong><br>${lesson.content}`;
+    }
+
+    if (text.includes("apprendre marketing") || text.includes("marketing")) {
+      userProgress.marketing = Math.min(100, userProgress.marketing + 25);
+      updateProgressBar();
+      return `<strong>Module Marketing Digital & Copywriting 📈</strong><br><br>
+      Le copywriting est l'art de rédiger des textes qui incitent à l'action.<br><br>
+      <strong>Formule PAS (Problème - Agitation - Solution) :</strong>
+      <ol>
+        <li><strong>Problème :</strong> Identifiez le besoin principal de votre client.</li>
+        <li><strong>Agitation :</strong> Expliquez pourquoi ce problème freine son quotidien ou son business.</li>
+        <li><strong>Solution :</strong> Présentez votre produit ou formation comme la réponse idéale.</li>
+      </ol>
+      Cette structure est idéale pour concevoir la page d'accueil d'un site ou une publicité Facebook/Instagram !`;
+    }
+
+    if (text.includes("design") || text.includes("ui") || text.includes("ux") || text.includes("branding")) {
+      userProgress.design = Math.min(100, userProgress.design + 25);
+      updateProgressBar();
+      return `<strong>Module UI/UX Design & Identité Visuelle 🎨</strong><br><br>
+      La conception d'interfaces repose sur 3 règles d'or :
+      <ul>
+        <li><strong>Hiérarchie visuelle :</strong> Guider l'œil grâce aux contrastes, tailles de police et espacements.</li>
+        <li><strong>Cohérence :</strong> Utiliser une palette de 2 à 3 couleurs principales et une typographie claire (ex: Inter, Roboto).</li>
+        <li><strong>Accessibilité & Ergonomie :</strong> Boutons tactiles d'au moins 44px et contrastes lisibles en plein soleil.</li>
+      </ul>
+      Posez-moi une question sur Figma, la théorie des couleurs ou la mise en page !`;
+    }
+
+    // 3. Connaissances dynamiques et réponses aux questions illimitées
+    const answer = generateKnowledgeResponse(text, raw);
+    if (answer) return answer;
+
+    // 4. Salutations et politesse
+    if (text.includes("bonjour") || text.includes("salut") || text.includes("hello") || text.includes("coucou") || text.includes("bonsoir")) {
+      return `Bonjour Corneille ! 👋 Je suis toujours là et prêt à répondre à toutes vos questions. Que souhaitez-vous savoir, coder ou explorer ?`;
+    }
+
+    if (text.includes("merci") || text.includes("super") || text.includes("parfait") || text.includes("top")) {
+      return `Avec plaisir ! N'hésitez pas si vous avez d'autres questions : vous avez un accès illimité. Quel est votre prochain sujet ?`;
+    }
+
+    // 5. Réponse générative et ouverte par défaut
+    return `<strong>À propos de votre recherche : "${escapeHTML(raw)}" 💡</strong><br><br>
+    Je peux vous apporter une assistance complète sur ce sujet :
+    <ul>
+      <li><strong>Explication détaillée :</strong> Je peux détailler les concepts théoriques étape par étape.</li>
+      <li><strong>Exemples de code :</strong> Demandez-moi un exemple pratique (HTML, CSS, JavaScript, Python...).</li>
+      <li><strong>Conseils méthodologiques :</strong> Pour vos projets, études ou révisions.</li>
+    </ul>
+    N'hésitez pas à préciser votre besoin ou choisissez un thème :<br>
+    <button class="action-btn" onclick="startCourse('HTML')">Apprendre HTML5</button>
+    <button class="action-btn" onclick="startCourse('Python')">Apprendre Python</button>`;
+  }
+
+  /* Base de connaissances thématiques */
+  function generateKnowledgeResponse(text, raw) {
+    // Responsive Design
+    if (text.includes("responsive") || text.includes("mobile") || text.includes("adapté") || text.includes("viewport") || text.includes("media query")) {
+      return `<strong>Le Responsive Design (Mise en page adaptable) 📱💻</strong><br><br>
+      Un site responsive s'adapte automatiquement à la taille de l'écran (smartphone, tablette, ordinateur) grâce à :
+      <ul>
+        <li><strong>La balise viewport obligatoire :</strong><br><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code></li>
+        <li><strong>Les Media Queries en CSS :</strong><br>
+        <pre>/* Mobile */\n@media (max-width: 768px) {\n  .container { flex-direction: column; }\n}</pre>
+        </li>
+        <li><strong>Des unités fluides :</strong> <code>%</code>, <code>vw</code>, <code>vh</code>, <code>rem</code> et Flexbox / CSS Grid.</li>
+      </ul>
+      Avez-vous besoin d'un exemple concret pour votre projet ?`;
+    }
+
+    // HTML Structure
+    if (text.includes("structurer une page") || text.includes("base html") || text.includes("squelette html") || text.includes("balise")) {
+      return `<strong>Structure Sémantique d'une Page HTML5 🏗️</strong><br><br>
+      Une page web moderne est structurée de manière sémantique :
+      <ul>
+        <li><code>&lt;header&gt;</code> : En-tête (logo, navigation, recherche).</li>
+        <li><code>&lt;nav&gt;</code> : Liens de navigation principale.</li>
+        <li><code>&lt;main&gt;</code> : Contenu principal unique de la page.</li>
+        <li><code>&lt;section&gt;</code> & <code>&lt;article&gt;</code> : Blocs thématiques et articles.</li>
+        <li><code>&lt;aside&gt;</code> : Barre latérale, suggestions ou publicités.</li>
+        <li><code>&lt;footer&gt;</code> : Pied de page (droits d'auteur, mentions légales, contacts).</li>
+      </ul>`;
+    }
+
+    // CSS Flexbox & Grid
+    if (text.includes("flexbox") || text.includes("grid") || text.includes("css")) {
+      return `<strong>Flexbox vs CSS Grid : Quand utiliser quoi ? 📐</strong><br><br>
+      • <strong>Flexbox (1 dimension) :</strong> Idéal pour aligner des éléments sur une seule ligne ou colonne (barres de navigation, boutons, cartes de listes).<br>
+      <code>display: flex; justify-content: space-between; align-items: center;</code><br><br>
+      • <strong>CSS Grid (2 dimensions) :</strong> Idéal pour créer des maquettes complexes combinant lignes et colonnes en même temps.<br>
+      <code>display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;</code>`;
+    }
+
+    // JavaScript & DOM
+    if (text.includes("javascript") || text.includes("js") || text.includes("dom") || text.includes("api")) {
+      return `<strong>JavaScript & Manipulation du DOM ⚡</strong><br><br>
+      JavaScript permet de rendre une page interactive :
+      <ul>
+        <li><strong>Sélectionner un élément :</strong> <code>document.getElementById('monId')</code> ou <code>document.querySelector('.classe')</code></li>
+        <li><strong>Écouter un clic :</strong> <code>element.addEventListener('click', () => { ... })</code></li>
+        <li><strong>Modifier le texte ou HTML :</strong> <code>element.innerHTML = 'Nouveau texte'</code></li>
+        <li><strong>Appeler une API externe :</strong> <code>fetch('https://api.site.com/data').then(res => res.json())</code></li>
+      </ul>
+      Voulez-vous voir un exemple d'animation ou de requête ?`;
+    }
+
+    // Python débutant
+    if (text.includes("python") || text.includes("variable") || text.includes("fonction python")) {
+      return `<strong>Fondamentaux de Python 🐍</strong><br><br>
+      Python se distingue par sa syntaxe épurée basée sur l'indentation (les espaces) :
+      <pre># Définition d'une fonction\ndef saluer(nom):\n    return f"Bonjour {nom} !"\n\n# Boucle simple\npour_i_dans = [1, 2, 3]\nfor n in pour_i_dans:\n    print(saluer("Corneille"))</pre>
+      Python est numéro 1 en intelligence artificielle, automatisation et analyse de données.`;
+    }
+
+    // Orientation Post-Bac & Métiers
+    if (text.includes("orientation") || text.includes("post-bac") || text.includes("bilan") || text.includes("bac") || text.includes("métier") || text.includes("carrière")) {
+      return `<strong>Orientation Académique & Carrières du Numérique 🧭</strong><br><br>
+      Voici les parcours les plus recherchés :
+      <ul>
+        <li><strong>Développement Web / Mobile :</strong> Pour ceux qui aiment concevoir des applications, résoudre des bugs et bâtir des projets concrets.</li>
+        <li><strong>Data Science & IA :</strong> Pour les profils analytiques, amateurs de mathématiques et de statistiques en Python.</li>
+        <li><strong>Marketing Digital & E-commerce :</strong> Pour les communicants, passionnés de vente, de réseaux sociaux et de psychologie client.</li>
+        <li><strong>UI/UX Design :</strong> Pour les créatifs souhaitant allier esthétique, ergonomie et psychologie utilisateur.</li>
+      </ul>
+      Dites-moi quelles matières vous passionnent le plus pour un bilan personnalisé !`;
+    }
+
+    // Inscription & Ressources
+    if (text.includes("inscription") || text.includes("admiss") || text.includes("rejoindre") || text.includes("guide html") || text.includes("cv")) {
+      return `<strong>Accès aux Formations & Ressources DA 📥</strong><br><br>
+      • <strong>Guide du Développeur Web :</strong> Couvre les balises sémantiques, sélecteurs CSS et astuces de débogage.<br>
+      • <strong>Template CV Développeur :</strong> Optimisé pour passer les filtres de recrutement et mettre en valeur vos projets GitHub.<br>
+      • <strong>Inscriptions :</strong> Les admissions se font toute l'année. Les ateliers interactifs et le tuteur sont disponibles sans limite de temps.`;
+    }
+
+    return null;
+  }
+
+  /* ================= ENVOI & GESTION DES MESSAGES ================= */
+  function handleSendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    appendMessage(escapeHTML(text), 'user');
+    userInput.value = '';
+
+    // Scroll immédiat
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    setTimeout(() => {
+      const reply = getAiResponse(text);
+      appendMessage(reply, 'bot');
+    }, 350);
+  }
+
+  function appendMessage(content, sender) {
+    const row = document.createElement('div');
+    row.className = `message-row ${sender}`;
+
+    const avatarHtml = sender === 'bot' 
+      ? `<div class="msg-avatar">🤖</div>` 
+      : `<div class="msg-avatar">CP</div>`;
+
+    row.innerHTML = `
+      ${avatarHtml}
+      <div>
+        <div class="bubble">${content}</div>
+        <span class="time-stamp">${getCurrentTime()}</span>
+      </div>
+    `;
+
+    chatWindow.appendChild(row);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function triggerQuery(text) {
+    switchTab('chatTab', document.querySelectorAll('.menu-item')[0]);
+    userInput.value = text;
+    handleSendMessage();
+  }
+
+  function startCourse(type) {
+    switchTab('chatTab', document.querySelectorAll('.menu-item')[0]);
+    userInput.value = `Apprendre ${type}`;
+    handleSendMessage();
+  }
+
+  function resetChat() {
+    chatWindow.innerHTML = '';
+    currentCourseState = null;
+    appendMessage("<strong>Session réinitialisée ! 🔄</strong><br>Vous avez un accès illimité. Posez-moi n'importe quelle question pour continuer.", 'bot');
+  }
+
+  function handleGlobalSearch(e) {
+    if (e.key === 'Enter') {
+      const query = document.getElementById('globalSearch').value;
+      if (query) {
+        triggerQuery(query);
+        document.getElementById('globalSearch').value = '';
+      }
+    }
+  }
+
+  function escapeHTML(str) {
+    const p = document.createElement('p');
+    p.appendChild(document.createTextNode(str));
+    return p.innerHTML;
+  }
+
+  sendBtn.addEventListener('click', handleSendMessage);
+  userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSendMessage();
+  });
+
+  // Empêcher les comportements indésirables du clavier sur smartphone
+  window.addEventListener('resize', () => {
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  });
+</script>
+
+</body>
+</html>
